@@ -1,0 +1,58 @@
+{
+  "properties": [
+    {
+      "name": "shadowflow.flows",
+      "type": "java.util.Map<java.lang.String,io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$ShadowFlowConfig>",
+      "defaultValue": {},
+      "description": "Map of shadow flows configurations."
+    },
+    {
+      "name": "shadowflow.encryption",
+      "type": "io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$EncryptionProperties",
+      "description": "Encryption options for the shadow flows."
+    },
+    {
+      "name": "shadowflow.encryption.cipher",
+      "type": "io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$EncryptionProperties$CipherProperties",
+      "description": "Cipher properties for encryption."
+    },
+    {
+      "name": "shadowflow.encryption.cipher.secret",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: openssl rand -hex 32"
+    },
+    {
+      "name": "shadowflow.encryption.cipher.initialization-vector",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: openssl rand -hex 12"
+    },
+    {
+      "name": "shadowflow.encryption.public-key",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "Base 64 encoded version of a X509 Public Key. Used in a Cipher with algorithm \"RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING\"."
+    },
+    {
+      "name": "shadowflow.flows[*].percentage",
+      "type": "java.lang.Integer",
+      "defaultValue": 0,
+      "description": "Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow."
+    }
+  ],
+  "hints": [
+    {
+      "name": "shadowflow.encryption.cipher.secret",
+      "description": "The secret should be a 16, 24, or 32-byte string. Could be generated as follows: openssl rand -hex 32"
+    },
+    {
+      "name": "shadowflow.encryption.cipher.initialization-vector",
+      "description": "The initialization vector should be a 12-byte string. Could be generated as follows: openssl rand -hex 12"
+    },
+    {
+      "name": "shadowflow.flows[*].percentage",
+      "description": "Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow."
+    }
+  ]
+}
