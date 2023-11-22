@@ -50,6 +50,7 @@ public class ShadowFlowProperties {
          * Zero effectively disables the shadow flow (but the main flow will always run)
          */
         private int percentage = 0;
+        private Class<?> type;
 
         public int getPercentage() {
             return percentage;
@@ -57,6 +58,14 @@ public class ShadowFlowProperties {
 
         public void setPercentage(final int percentage) {
             this.percentage = percentage;
+        }
+
+        public Class<?> getType() {
+            return type;
+        }
+
+        public void setType(final Class<?> type) {
+            this.type = type;
         }
     }
 
@@ -75,6 +84,12 @@ public class ShadowFlowProperties {
          */
         private String publicKey;
 
+
+        /**
+         * Disables encryption, but will encode differences as Base64
+         */
+        private boolean noop;
+
         public CipherProperties getCipher() {
             return cipher;
         }
@@ -89,6 +104,14 @@ public class ShadowFlowProperties {
 
         public void setPublicKey(final String publicKey) {
             this.publicKey = publicKey;
+        }
+
+        public boolean isNoop() {
+            return noop;
+        }
+
+        public void setNoop(final boolean noop) {
+            this.noop = noop;
         }
 
         public static class CipherProperties {
