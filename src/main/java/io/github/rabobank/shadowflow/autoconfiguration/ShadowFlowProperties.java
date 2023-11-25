@@ -3,7 +3,9 @@ package io.github.rabobank.shadowflow.autoconfiguration;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -41,6 +43,12 @@ public class ShadowFlowProperties {
 
     public void setEncryption(final EncryptionProperties encryption) {
         this.encryption = encryption;
+    }
+
+    static ShadowFlowProperties bindProperties(final Environment environment) {
+        return Binder.get(environment)
+                .bind("shadowflow", ShadowFlowProperties.class)
+                .orElseGet(ShadowFlowProperties::new);
     }
 
     public static class ShadowFlowConfig {

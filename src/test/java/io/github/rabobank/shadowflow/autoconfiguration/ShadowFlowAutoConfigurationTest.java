@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -22,6 +20,7 @@ class ShadowFlowAutoConfigurationTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
                     ShadowFlowAutoConfiguration.class,
+                    ShadowFlowEncryptionAutoConfiguration.class,
                     RefreshAutoConfiguration.class
             ));
     private final SecureRandom random = new SecureRandom();
@@ -45,8 +44,10 @@ class ShadowFlowAutoConfigurationTest {
     @Test
     void shouldConfigureShadowFlowsWithEncryptionService() {
         contextRunner
-                .withUserConfiguration(NoopEncryptionTestConfiguration.class)
-                .withPropertyValues("shadowflow.flows.test.percentage=50")
+                .withPropertyValues(
+                        "shadowflow.flows.test.percentage=50",
+                        "shadowflow.encryption.noop=true"
+                )
                 .run(context ->
                         assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
                                 .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
@@ -64,12 +65,8 @@ class ShadowFlowAutoConfigurationTest {
                 )
                 .run(context -> {
                     assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName());
-
-                    final var shadowFlow = context.getBean(ShadowFlow.class);
-                    final var encryptionService = ReflectionTestUtils.getField(shadowFlow, "encryptionService");
-                    assertThat(encryptionService).isInstanceOf(EncryptionService.class);
-                    assertThat(encryptionService).isNotInstanceOf(NoopEncryptionService.class);
+                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                            .hasBean("defaultEncryptionService");
                 });
     }
 
@@ -82,12 +79,8 @@ class ShadowFlowAutoConfigurationTest {
                 )
                 .run(context -> {
                     assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName());
-
-                    final var shadowFlow = context.getBean(ShadowFlow.class);
-                    final var encryptionService = ReflectionTestUtils.getField(shadowFlow, "encryptionService");
-                    assertThat(encryptionService).isInstanceOf(EncryptionService.class);
-                    assertThat(encryptionService).isNotInstanceOf(NoopEncryptionService.class);
+                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                            .hasBean("publicKeyEncryptionService");
                 });
     }
 
@@ -120,12 +113,5 @@ class ShadowFlowAutoConfigurationTest {
 
         // Encode the public key in Base64
         return Base64.encodeBase64String(publicKey.getEncoded());
-    }
-
-    private static class NoopEncryptionTestConfiguration {
-        @Bean
-        EncryptionService noopEncryption() {
-            return NoopEncryptionService.INSTANCE;
-        }
     }
 }

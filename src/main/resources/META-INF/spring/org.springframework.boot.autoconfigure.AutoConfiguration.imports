@@ -1,1 +1,2 @@
 io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowAutoConfiguration
+io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowEncryptionAutoConfiguration

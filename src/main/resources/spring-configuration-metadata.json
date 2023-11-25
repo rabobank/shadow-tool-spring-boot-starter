@@ -32,7 +32,13 @@
       "name": "shadowflow.encryption.public-key",
       "type": "java.lang.String",
       "defaultValue": "",
-      "description": "Base 64 encoded version of a X509 Public Key. Used in a Cipher with algorithm \"RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING\"."
+      "description": "Base 64 encoded version of an X509 Public Key. Used in a Cipher with algorithm \"RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING\"."
+    },
+    {
+      "name": "shadowflow.encryption.noop",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Disables encryption but encodes differences as Base64."
     },
     {
       "name": "shadowflow.flows[*].percentage",
