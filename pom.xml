@@ -37,7 +37,7 @@
         <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <shadow-tool.version>1.4.3-SNAPSHOT</shadow-tool.version>
+        <shadow-tool.version>1.4.3</shadow-tool.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
     </properties>
