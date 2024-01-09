@@ -39,7 +39,7 @@
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <shadow-tool.version>1.4.3</shadow-tool.version>
         <snakeyaml.version>2.2</snakeyaml.version>
-        <spring-cloud.version>2022.0.4</spring-cloud.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
