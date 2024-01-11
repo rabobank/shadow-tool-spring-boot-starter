@@ -94,7 +94,8 @@ shadowflow:
 
 ## Example Configuration
 
-Example `application.yml` configuration for a shadow flow with all possible values.:
+Example `application.yml` configuration for a shadow flow with all possible values combined. Make sure to only configure
+one of `cipher`, `public-key`, or `noop`.
 
 ```yaml
 shadowflow:
