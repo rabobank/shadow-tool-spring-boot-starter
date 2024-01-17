@@ -11,7 +11,6 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter)
 
 ```xml
-
 <dependency>
     <groupId>io.github.rabobank.shadow_tool</groupId>
     <artifactId>shadow-tool-spring-boot-starter</artifactId>
