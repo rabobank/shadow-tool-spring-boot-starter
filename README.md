@@ -11,7 +11,6 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter)
 
 ```xml
-
 <dependency>
     <groupId>io.github.rabobank.shadow_tool</groupId>
     <artifactId>shadow-tool-spring-boot-starter</artifactId>
@@ -23,26 +22,23 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 
 The following properties can be configured in the `application.yml` file to configure the shadow flow(s).
 
-| Property Name                                      | Type                                                                                                                  | Default Value | Description                                                                                                                                     |
-|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| shadowflow.flows                                   | java.util.Map<java.lang.String,io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$ShadowFlowConfig> | {}            | Map of shadow flows configurations.                                                                                                             |
-| shadowflow.encryption                              | io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$EncryptionProperties                             | n/a           | Encryption options for the shadow flows.                                                                                                        |
-| shadowflow.encryption.cipher                       | io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties$EncryptionProperties$CipherProperties            | n/a           | Cipher properties for encryption.                                                                                                               |
-| shadowflow.encryption.cipher.secret                | java.lang.String                                                                                                      | ""            | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: openssl rand -hex 32                           |
-| shadowflow.encryption.cipher.initialization-vector | java.lang.String                                                                                                      | ""            | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: openssl rand -hex 12                       |
-| shadowflow.encryption.public-key                   | java.lang.String                                                                                                      | ""            | Base 64 encoded version of an X509 Public Key. Used in a Cipher with algorithm "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING".                         |
-| shadowflow.encryption.noop                         | java.lang.Boolean                                                                                                     | false         | Disables encryption but encodes differences as Base64.                                                                                          |
-| shadowflow.flows[*].percentage                     | java.lang.Integer                                                                                                     | 0             | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
-
+| Property Name                                        | Type      | Default Value | Description                                                                                                                                     |
+|------------------------------------------------------|-----------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `shadowflow.encryption.cipher.secret`                | `String`  | `""`          | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: `openssl rand -hex 32`                         |
+| `shadowflow.encryption.cipher.initialization-vector` | `String`  | `""`          | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
+| `shadowflow.encryption.public-key`                   | `String`  | `""`          | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
+| `shadowflow.encryption.noop`                         | `Boolean` | `false`       | Disables encryption but encodes differences as `Base64`.                                                                                        |
+| `shadowflow.flows[*].percentage`                     | `Integer` | `0`           | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
 
 ## Configuring Shadow Flow Beans
 
 Shadow Flow beans can be configured in your Spring Boot application by defining properties in the `application.yml`
 file. Here are the steps to configure shadow flows:
 
-1. Define the shadow flows you want to use in your application under the `shadowflow.flows` property. 
-   In this example, `flow1` and `flow2` are defined as shadow flows (which you can rename to anything). 
-   And `percentage` represents a percentage number in the range of 0-100 of how many calls should be compared in the shadow flow. 
+1. Define the shadow flows you want to use in your application under the `shadowflow.flows` property.
+   In this example, `flow1` and `flow2` are defined as shadow flows (which you can rename to anything).
+   And `percentage` represents a percentage number in the range of 0-100 of how many calls should be compared in the
+   shadow flow.
    Zero effectively disables the shadow flow.
 
 ```yaml
@@ -54,38 +50,43 @@ shadowflow:
       percentage: 75
 ```
 
-2. Configure the encryption options for the shadow flows under the `shadowflow.encryption property`. You can choose to use
+2. Configure the encryption options for the shadow flows under the `shadowflow.encryption property`. You can choose to
+   use
    a cipher or a public key for encryption.
 
 * To use a cipher, define the `shadowflow.encryption.cipher` property. The cipher should have a `secret` and an
   `initialization-vector`. The secret should be a 16, 24, or 32-byte string and the `initialization-vector` should be a
   12-byte string.
-* To use a public key, define the `shadowflow.encryption.public-key` property. The public key should be a Base 64 encoded
+* To use a public key, define the `shadowflow.encryption.public-key` property. The public key should be a Base 64
+  encoded
   version of an X509 Public Key.
 
 Either set one of the following:
 
-Cipher example: exposes bean `defaultEncryptionService` of type `EncryptionService` 
+Cipher example: exposes bean `defaultEncryptionService` of type `EncryptionService`
+
 ```yaml 
 shadowflow:
-    encryption:
-        cipher:
-            secret: "3d7e0c4f8fbbd8d8a79e76cabc8f4e24"
-            initialization-vector: "3d7e0c4f8fbb"
+  encryption:
+    cipher:
+      secret: "3d7e0c4f8fbbd8d8a79e76cabc8f4e24"
+      initialization-vector: "3d7e0c4f8fbb"
 ```
 
 Public key example: exposes bean `publicKeyEncryptionService` of type `EncryptionService`
+
 ```yaml 
 shadowflow:
-    encryption:
-        cipher:
-          public-key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArmkP2CgDn3OsuIj1GxM3"
+  encryption:
+    cipher:
+      public-key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArmkP2CgDn3OsuIj1GxM3"
 ```
 
 3. If you want to disable encryption but encode differences as Base64, set the `shadowflow.encryption.noop` property to
    `true`.
 
 This exposes bean `noopEncryptionService` of type `EncryptionService`
+
 ```yaml
 shadowflow:
   encryption:
