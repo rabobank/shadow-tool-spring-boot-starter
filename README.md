@@ -82,8 +82,8 @@ shadowflow:
           public-key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArmkP2CgDn3OsuIj1GxM3"
 ```
 
-3. If you want to disable encryption but encode differences as Base64, set the shadowflow.encryption.noop property to
-   true.
+3. If you want to disable encryption but encode differences as Base64, set the `shadowflow.encryption.noop` property to
+   `true`.
 
 This exposes bean `noopEncryptionService` of type `EncryptionService`
 ```yaml
