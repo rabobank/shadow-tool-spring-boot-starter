@@ -18,7 +18,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -68,7 +67,7 @@ public class ShadowFlowAutoConfiguration {
                 definition.setAutowireCandidate(true);
 
                 if (registry.containsBeanDefinition(REFRESH_SCOPE_BEAN_NAME)) {
-                    final var holder = new BeanDefinitionHolder(definition, shadowFlowBeanName(key));
+                    final var holder = new BeanDefinitionHolder(definition, key);
                     final var proxy = ScopedProxyUtils.createScopedProxy(holder, registry, true);
                     if (registry.containsBeanDefinition(proxy.getBeanName())) {
                         registry.removeBeanDefinition(proxy.getBeanName());
@@ -80,7 +79,7 @@ public class ShadowFlowAutoConfiguration {
 
                     registry.registerBeanDefinition(proxy.getBeanName(), beanDefinition);
                 } else {
-                    registry.registerBeanDefinition(shadowFlowBeanName(key), definition);
+                    registry.registerBeanDefinition(key, definition);
                 }
             });
         }
@@ -90,7 +89,7 @@ public class ShadowFlowAutoConfiguration {
         public void postProcessBeanFactory(@NonNull final ConfigurableListableBeanFactory beanFactory) throws BeansException {
             properties.getFlows()
                     .forEach((key, value) -> {
-                                final var beanName = getDecoratedBeanName(beanFactory, shadowFlowBeanName(key));
+                                final var beanName = getDecoratedBeanName(beanFactory, key);
                                 beanFactory.registerSingleton(beanName, createShadowFlow(key, value));
                             }
                     );
@@ -107,8 +106,7 @@ public class ShadowFlowAutoConfiguration {
                         .orElseGet(ShadowFlowProperties::new);
                 properties.getFlows()
                         .forEach((key, value) -> {
-                                    final var name = shadowFlowBeanName(key);
-                                    final var beanName = getDecoratedBeanName(beanFactory, name);
+                                    final var beanName = getDecoratedBeanName(beanFactory, key);
                                     registry.destroySingleton(beanName);
                                     beanFactory.registerSingleton(beanName, createShadowFlow(key, value));
                                 }
@@ -123,10 +121,6 @@ public class ShadowFlowAutoConfiguration {
             final var beanDefinition = beanFactory.getBeanDefinition(name);
             final var decoratedDefinition = ((RootBeanDefinition) beanDefinition).getDecoratedDefinition();
             return Objects.requireNonNull(decoratedDefinition).getBeanName();
-        }
-
-        private static String shadowFlowBeanName(final String key) {
-            return key;
         }
 
         private ShadowFlow<Object> createShadowFlow(final String name, final ShadowFlowConfig config) {
