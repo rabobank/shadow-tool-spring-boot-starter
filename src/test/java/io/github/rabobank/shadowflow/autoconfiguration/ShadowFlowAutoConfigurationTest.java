@@ -7,6 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 
@@ -23,6 +24,13 @@ class ShadowFlowAutoConfigurationTest {
                     ShadowFlowEncryptionAutoConfiguration.class,
                     RefreshAutoConfiguration.class
             ));
+
+    private final ApplicationContextRunner cloudlessContextRunner = new ApplicationContextRunner()
+            .withClassLoader(new FilteredClassLoader(RefreshAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(
+                    ShadowFlowAutoConfiguration.class,
+                    ShadowFlowEncryptionAutoConfiguration.class
+            ));
     private final SecureRandom random = new SecureRandom();
 
     @Test
@@ -36,8 +44,18 @@ class ShadowFlowAutoConfigurationTest {
         contextRunner
                 .withPropertyValues("shadowflow.flows.test.percentage=50")
                 .run(context ->
-                        assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                                .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                        assertThat(context).hasBean("test")
+                                .hasBean("scopedTarget.test")
+                                .doesNotHaveBean(EncryptionService.class));
+    }
+
+    @Test
+    void shouldConfigureShadowFlowsCloudless() {
+        cloudlessContextRunner
+                .withPropertyValues("shadowflow.flows.test.percentage=50")
+                .run(context ->
+                        assertThat(context).hasBean("test")
+                                .doesNotHaveBean("scopedTarget.test")
                                 .doesNotHaveBean(EncryptionService.class));
     }
 
@@ -49,8 +67,8 @@ class ShadowFlowAutoConfigurationTest {
                         "shadowflow.encryption.noop=true"
                 )
                 .run(context ->
-                        assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                                .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                        assertThat(context).hasBean("test")
+                                .hasBean("scopedTarget.test")
                                 .hasSingleBean(EncryptionService.class)
                                 .hasSingleBean(NoopEncryptionService.class));
     }
@@ -64,8 +82,8 @@ class ShadowFlowAutoConfigurationTest {
                         "shadowflow.encryption.cipher.initialization-vector=" + randomBytes(12)
                 )
                 .run(context -> {
-                    assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                    assertThat(context).hasBean("test")
+                            .hasBean("scopedTarget.test")
                             .hasBean("defaultEncryptionService");
                 });
     }
@@ -78,8 +96,8 @@ class ShadowFlowAutoConfigurationTest {
                         "shadowflow.encryption.public-key=" + generatePublicKey()
                 )
                 .run(context -> {
-                    assertThat(context).hasBean("test-" + ShadowFlow.class.getName())
-                            .hasBean("scopedTarget.test-" + ShadowFlow.class.getName())
+                    assertThat(context).hasBean("test")
+                            .hasBean("scopedTarget.test")
                             .hasBean("publicKeyEncryptionService");
                 });
     }
