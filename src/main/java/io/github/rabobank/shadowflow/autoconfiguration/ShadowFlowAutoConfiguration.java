@@ -18,7 +18,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -31,13 +30,16 @@ import java.security.Security;
 import java.util.Objects;
 
 import static org.springframework.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
-import static org.springframework.cloud.autoconfigure.RefreshAutoConfiguration.REFRESH_SCOPE_NAME;
 
-@AutoConfiguration(before = RefreshAutoConfiguration.class, after = ShadowFlowEncryptionAutoConfiguration.class)
+@AutoConfiguration(beforeName = "org.springframework.cloud.autoconfigure.RefreshAutoConfiguration", after = ShadowFlowEncryptionAutoConfiguration.class)
 @ConditionalOnClass(ShadowFlowBuilder.class)
 @EnableConfigurationProperties(ShadowFlowProperties.class)
 @Import(ShadowFlowAutoConfiguration.ShadowFlowRegistrar.class)
 public class ShadowFlowAutoConfiguration {
+
+    private static final String REFRESH_SCOPE_BEAN_NAME = "refreshScope";
+    private static final String REFRESH_SCOPE = "refresh";
+
     ShadowFlowAutoConfiguration() {
     }
 
@@ -57,31 +59,37 @@ public class ShadowFlowAutoConfiguration {
 
         @Override
         public void postProcessBeanDefinitionRegistry(@NonNull final BeanDefinitionRegistry registry) throws BeansException {
-            properties.getFlows()
-                    .forEach((key, value) -> {
-                        final var shadowFlowType = ResolvableType.forClassWithGenerics(ShadowFlow.class, value.getType());
-                        final var definition = new RootBeanDefinition();
-                        definition.setTargetType(shadowFlowType);
-                        definition.setAutowireMode(AUTOWIRE_BY_TYPE);
-                        definition.setAutowireCandidate(true);
-                        definition.setBeanClass(ShadowFlow.class);
+            properties.getFlows().forEach((key, value) -> {
+                final var shadowFlowType = ResolvableType.forClassWithGenerics(ShadowFlow.class, value.getType());
+                final var definition = new RootBeanDefinition(ShadowFlow.class);
+                definition.setTargetType(shadowFlowType);
+                definition.setAutowireMode(AUTOWIRE_BY_TYPE);
+                definition.setAutowireCandidate(true);
 
-                        final var holder = new BeanDefinitionHolder(definition, shadowFlowBeanName(key));
-                        final var proxy = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-                        if (registry.containsBeanDefinition(proxy.getBeanName())) {
-                            registry.removeBeanDefinition(proxy.getBeanName());
-                        }
-                        final var beanDefinition = proxy.getBeanDefinition();
-                        beanDefinition.setScope(REFRESH_SCOPE_NAME);
-                        registry.registerBeanDefinition(proxy.getBeanName(), beanDefinition);
-                    });
+                if (registry.containsBeanDefinition(REFRESH_SCOPE_BEAN_NAME)) {
+                    final var holder = new BeanDefinitionHolder(definition, key);
+                    final var proxy = ScopedProxyUtils.createScopedProxy(holder, registry, true);
+                    if (registry.containsBeanDefinition(proxy.getBeanName())) {
+                        registry.removeBeanDefinition(proxy.getBeanName());
+                    }
+
+                    final var beanDefinition = proxy.getBeanDefinition();
+
+                    beanDefinition.setScope(REFRESH_SCOPE);
+
+                    registry.registerBeanDefinition(proxy.getBeanName(), beanDefinition);
+                } else {
+                    registry.registerBeanDefinition(key, definition);
+                }
+            });
         }
+
 
         @Override
         public void postProcessBeanFactory(@NonNull final ConfigurableListableBeanFactory beanFactory) throws BeansException {
             properties.getFlows()
                     .forEach((key, value) -> {
-                                final var beanName = getDecoratedBeanName(beanFactory, shadowFlowBeanName(key));
+                                final var beanName = getDecoratedBeanName(beanFactory, key);
                                 beanFactory.registerSingleton(beanName, createShadowFlow(key, value));
                             }
                     );
@@ -98,8 +106,7 @@ public class ShadowFlowAutoConfiguration {
                         .orElseGet(ShadowFlowProperties::new);
                 properties.getFlows()
                         .forEach((key, value) -> {
-                                    final var name = shadowFlowBeanName(key);
-                                    final var beanName = getDecoratedBeanName(beanFactory, name);
+                                    final var beanName = getDecoratedBeanName(beanFactory, key);
                                     registry.destroySingleton(beanName);
                                     beanFactory.registerSingleton(beanName, createShadowFlow(key, value));
                                 }
@@ -108,13 +115,12 @@ public class ShadowFlowAutoConfiguration {
         }
 
         private static String getDecoratedBeanName(final ConfigurableListableBeanFactory beanFactory, final String name) {
+            if (!beanFactory.containsBeanDefinition(REFRESH_SCOPE_BEAN_NAME)) {
+                return name;
+            }
             final var beanDefinition = beanFactory.getBeanDefinition(name);
             final var decoratedDefinition = ((RootBeanDefinition) beanDefinition).getDecoratedDefinition();
             return Objects.requireNonNull(decoratedDefinition).getBeanName();
-        }
-
-        private static String shadowFlowBeanName(final String key) {
-            return key + "-" + ShadowFlow.class.getName();
         }
 
         private ShadowFlow<Object> createShadowFlow(final String name, final ShadowFlowConfig config) {
