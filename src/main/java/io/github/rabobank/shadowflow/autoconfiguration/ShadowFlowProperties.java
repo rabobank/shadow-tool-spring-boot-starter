@@ -1,7 +1,7 @@
 package io.github.rabobank.shadowflow.autoconfiguration;
 
-import jakarta.validation.constraints.NotEmpty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import jakarta.validation.constraints.Max;import jakarta.validation.constraints.NotBlank;import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.PositiveOrZero;import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -57,7 +57,10 @@ public class ShadowFlowProperties {
          * This should be in the range of 0-100.
          * Zero effectively disables the shadow flow (but the main flow will always run)
          */
+        @PositiveOrZero(message = "A percentage needs to have a positive value between 0 (disabled) and 100")
+        @Max(value = 100, message = "A percentage needs to have a positive value between 0 (disabled) and 100")
         private int percentage = 0;
+        @NotBlank(message = "To create a correct ShadowFlow<T> bean the type T is required")
         private Class<?> type;
 
         public int getPercentage() {
