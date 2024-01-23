@@ -42,7 +42,8 @@ class ShadowFlowAutoConfigurationTest {
     @Test
     void shouldConfigureShadowFlows() {
         contextRunner
-                .withPropertyValues("shadowflow.flows.test.percentage=50")
+                .withPropertyValues("shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String")
                 .run(context ->
                         assertThat(context).hasBean("test")
                                 .hasBean("scopedTarget.test")
@@ -52,7 +53,8 @@ class ShadowFlowAutoConfigurationTest {
     @Test
     void shouldConfigureShadowFlowsCloudless() {
         cloudlessContextRunner
-                .withPropertyValues("shadowflow.flows.test.percentage=50")
+                .withPropertyValues("shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String")
                 .run(context ->
                         assertThat(context).hasBean("test")
                                 .doesNotHaveBean("scopedTarget.test")
@@ -64,6 +66,7 @@ class ShadowFlowAutoConfigurationTest {
         contextRunner
                 .withPropertyValues(
                         "shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String",
                         "shadowflow.encryption.noop=true"
                 )
                 .run(context ->
@@ -78,6 +81,7 @@ class ShadowFlowAutoConfigurationTest {
         contextRunner
                 .withPropertyValues(
                         "shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String",
                         "shadowflow.encryption.cipher.secret=" + randomBytes(32),
                         "shadowflow.encryption.cipher.initialization-vector=" + randomBytes(12)
                 )
@@ -93,6 +97,7 @@ class ShadowFlowAutoConfigurationTest {
         contextRunner
                 .withPropertyValues(
                         "shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String",
                         "shadowflow.encryption.public-key=" + generatePublicKey()
                 )
                 .run(context -> {
