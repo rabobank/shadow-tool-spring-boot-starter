@@ -39,7 +39,7 @@ file. Here are the steps to configure shadow flows:
 
 1. Define the shadow flows you want to use in your application under the `shadowflow.flows` property.
    In this example, `flow1` and `flow2` are defined as shadow flows (which you can rename to anything).
-   `percentage` represents a percentage number in the range of 0-100 of how many calls should be compared in the
+   `percentage` represents a number in the range of 0-100 of how many calls should be compared in the
    shadow flow.
    Zero effectively disables the shadow flow.
    And `type` represents the data model which is used to compare.
