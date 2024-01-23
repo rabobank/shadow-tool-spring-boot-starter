@@ -11,6 +11,7 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter)
 
 ```xml
+
 <dependency>
     <groupId>io.github.rabobank.shadow_tool</groupId>
     <artifactId>shadow-tool-spring-boot-starter</artifactId>
@@ -22,13 +23,14 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 
 The following properties can be configured in the `application.yml` file to configure the shadow flow(s).
 
-| Property Name                                        | Type      | Default Value | Description                                                                                                                                     |
-|------------------------------------------------------|-----------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `shadowflow.encryption.cipher.secret`                | `String`  | `""`          | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: `openssl rand -hex 32`                         |
-| `shadowflow.encryption.cipher.initialization-vector` | `String`  | `""`          | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
-| `shadowflow.encryption.public-key`                   | `String`  | `""`          | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
-| `shadowflow.encryption.noop`                         | `Boolean` | `false`       | Disables encryption but encodes differences as `Base64`.                                                                                        |
-| `shadowflow.flows[*].percentage`                     | `Integer` | `0`           | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
+| Property Name                                        | Type                                                         | Default Value | Description                                                                                                                                     |
+|------------------------------------------------------|--------------------------------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `shadowflow.encryption.cipher.secret`                | `String`                                                     | `""`          | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: `openssl rand -hex 32`                         |
+| `shadowflow.encryption.cipher.initialization-vector` | `String`                                                     | `""`          | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
+| `shadowflow.encryption.public-key`                   | `String`                                                     | `""`          | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
+| `shadowflow.encryption.noop`                         | `Boolean`                                                    | `false`       | Disables encryption but encodes differences as `Base64`.                                                                                        |
+| `shadowflow.flows[*].percentage`                     | `Integer`                                                    | `0`           | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
+| `shadowflow.flows[*].type`                           | Fully qualified class name (i.e. `your.package.RecordClass`) | n/a           | The data model which is used to compare                                                                                                         |
 
 ## Configuring Shadow Flow Beans
 
@@ -37,17 +39,20 @@ file. Here are the steps to configure shadow flows:
 
 1. Define the shadow flows you want to use in your application under the `shadowflow.flows` property.
    In this example, `flow1` and `flow2` are defined as shadow flows (which you can rename to anything).
-   And `percentage` represents a percentage number in the range of 0-100 of how many calls should be compared in the
+   `percentage` represents a percentage number in the range of 0-100 of how many calls should be compared in the
    shadow flow.
    Zero effectively disables the shadow flow.
+   And `type` represents the data model which is used to compare.
 
 ```yaml
 shadowflow:
   flows:
     flow1:
       percentage: 50
+      type: "your.package.DataClass" # This should be a fully qualified class name
     flow2:
       percentage: 75
+      type: "your.package.RecordClass"
 ```
 
 2. Configure the encryption options for the shadow flows under the `shadowflow.encryption property`. You can choose to
@@ -95,8 +100,9 @@ shadowflow:
 
 ## Example Configuration
 
-Example `application.yml` configuration for a shadow flow with all possible values combined. Make sure to only configure
-one of `cipher`, `public-key`, or `noop`.
+Example `application.yml` configuration for a shadow flow with all possible values combined.
+
+*NOTE:* Make sure to only configure one of `cipher`, `public-key`, or `noop`!
 
 ```yaml
 shadowflow:
@@ -111,4 +117,52 @@ shadowflow:
       initialization-vector: "3d7e0c4f8fbb"
     public-key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArmkP2CgDn3OsuIj1GxM3"
     noop: false
+```
+
+If you have done all this, a bean of type `ShadowFlow<T>` (T is the class name you defined in the `type` property) will be exposed 
+for each shadow flow you defined. In this example, `ShadowFlow<DataClass>` and `ShadowFlow<RecordClass>` will be exposed.
+
+## Example Code
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+@Service
+public class MyService {
+    private final ShadowFlow<DataClass> shadowFlow;
+
+    @Autowired
+    public MyService(final ShadowFlow<DataClass> shadowFlow) {
+        this.shadowFlow = shadowFlow;
+    }
+
+    public Mono<RecordClass> myMonoInvocation() {
+        // will always return the first passed argument, so a mono of RecordClass("value")
+        return shadowFlow.compare(Mono.just(new RecordClass("value")), Mono.just(new RecordClass("differentValue")));
+    }
+
+    public RecordClass myInvocation() {
+        // will always return the first passed argument, so RecordClass("value")
+        return shadowFlow.compare(() -> new RecordClass("value"), () -> new RecordClass("differentValue"));
+    }
+}
+```
+
+```kotlin
+
+import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
+
+@Service
+class MyService(private val shadowFlow: ShadowFlow<DataClass>) {
+
+    // will always return the first passed argument, so a mono of RecordClass("value")
+    fun myMonoInvocation() = shadowFlow.compare(Mono.just(RecordClass("value")), Mono.just(RecordClass("differentValue")))
+
+    // will always return the first passed argument, so RecordClass("value")
+    fun myInvocation() = shadowFlow.compare({ RecordClass("value") }, { RecordClass("differentValue") })
+}
 ```
