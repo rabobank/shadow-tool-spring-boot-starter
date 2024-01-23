@@ -1,16 +1,21 @@
 package io.github.rabobank.shadowflow.autoconfiguration;
 
-import jakarta.validation.constraints.Max;import jakarta.validation.constraints.NotBlank;import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.PositiveOrZero;import org.springframework.boot.context.properties.ConfigurationProperties;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Map;
 
 @Component
+@Validated
 @RefreshScope
 @ConfigurationProperties("shadowflow")
 public class ShadowFlowProperties {
@@ -60,7 +65,7 @@ public class ShadowFlowProperties {
         @PositiveOrZero(message = "A percentage needs to have a positive value between 0 (disabled) and 100")
         @Max(value = 100, message = "A percentage needs to have a positive value between 0 (disabled) and 100")
         private int percentage = 0;
-        @NotBlank(message = "To create a correct ShadowFlow<T> bean the type T is required")
+        @NotNull(message = "To create a correct ShadowFlow<T> bean the type T is required")
         private Class<?> type;
 
         public int getPercentage() {
