@@ -169,7 +169,7 @@
     <distributionManagement>
         <repository>
             <id>central</id>
-            <url>http://central.maven.org/maven2</url>
+            <url>https://central.maven.org/maven2</url>
         </repository>
     </distributionManagement>
 
