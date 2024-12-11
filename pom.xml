@@ -10,7 +10,7 @@
     </parent>
     <groupId>io.github.rabobank.shadow_tool</groupId>
     <artifactId>shadow-tool-spring-boot-starter</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.1.4-SNAPSHOT</version>
     <name>Shadow Tool Spring Boot Starter</name>
     <description>Shadow Tool Spring Boot Starter</description>
 
@@ -32,13 +32,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
 
+        <central-publishing-maven-plugin.version>0.6.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.11.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-        <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
-        <shadow-tool.version>1.4.6</shadow-tool.version>
-        <spring-cloud.version>2022.0.5</spring-cloud.version>
+        <shadow-tool.version>1.5.1</shadow-tool.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -109,14 +109,13 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus-staging-maven-plugin.version}</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${central-publishing-maven-plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
@@ -168,20 +167,17 @@
     </build>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>central</id>
+            <url>https://central.maven.org/maven2</url>
         </repository>
     </distributionManagement>
 
     <scm>
         <connection>scm:git:git://github.com/rabobank/shadow-tool-spring-boot-starter.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:rabobank/shadow-tool-spring-boot-starter.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com/rabobank/shadow-tool-spring-boot-starter.git</developerConnection>
         <url>https://github.com/rabobank/shadow-tool-spring-boot-starter</url>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
