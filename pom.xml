@@ -37,7 +37,7 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-        <shadow-tool.version>1.6.0</shadow-tool.version>
+        <shadow-tool.version>1.6.1</shadow-tool.version>
         <spring-cloud.version>2024.0.1</spring-cloud.version>
     </properties>
 
