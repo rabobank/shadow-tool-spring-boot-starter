@@ -10,7 +10,7 @@
     </parent>
     <groupId>io.github.rabobank.shadow_tool</groupId>
     <artifactId>shadow-tool-spring-boot-starter</artifactId>
-    <version>0.1.9-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <name>Shadow Tool Spring Boot Starter</name>
     <description>Shadow Tool Spring Boot Starter</description>
 
