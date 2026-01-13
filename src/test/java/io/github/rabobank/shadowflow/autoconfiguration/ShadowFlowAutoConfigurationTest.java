@@ -85,11 +85,9 @@ class ShadowFlowAutoConfigurationTest {
                         "shadowflow.encryption.cipher.secret=" + randomBytes(32),
                         "shadowflow.encryption.cipher.initialization-vector=" + randomBytes(12)
                 )
-                .run(context -> {
-                    assertThat(context).hasBean("test")
-                            .hasBean("scopedTarget.test")
-                            .hasBean("defaultEncryptionService");
-                });
+                .run(context -> assertThat(context).hasBean("test")
+                        .hasBean("scopedTarget.test")
+                        .hasBean("defaultEncryptionService"));
     }
 
     @Test
@@ -100,11 +98,9 @@ class ShadowFlowAutoConfigurationTest {
                         "shadowflow.flows.test.type=java.lang.String",
                         "shadowflow.encryption.public-key=" + generatePublicKey()
                 )
-                .run(context -> {
-                    assertThat(context).hasBean("test")
-                            .hasBean("scopedTarget.test")
-                            .hasBean("publicKeyEncryptionService");
-                });
+                .run(context -> assertThat(context).hasBean("test")
+                        .hasBean("scopedTarget.test")
+                        .hasBean("publicKeyEncryptionService"));
     }
 
     @Test

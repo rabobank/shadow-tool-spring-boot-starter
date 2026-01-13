@@ -5,6 +5,7 @@ import io.github.rabobank.shadow_tool.ShadowFlow;
 import io.github.rabobank.shadow_tool.ShadowFlow.ShadowFlowBuilder;
 import io.github.rabobank.shadowflow.autoconfiguration.ShadowFlowProperties.ShadowFlowConfig;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
@@ -24,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ResolvableType;
-import org.springframework.lang.NonNull;
 
 import java.security.Security;
 import java.util.Objects;
