@@ -1,7 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - ".github/**/*"
     schedule:
       interval: "monthly"
     labels:
@@ -21,3 +22,22 @@ updates:
         dependency-type: "development"
       prod-deps:
         dependency-type: "production"
+    allow:
+      - dependency-type: "all"
+        dependency-name: "org.springframework.boot:spring-boot*"
+        versioning-strategy: "increase"
+        # Only allow 3.5.x updates
+        versions:
+          - "3.5.x"
+      - dependency-type: "all"
+        dependency-name: "org.springframework.cloud:*"
+        versioning-strategy: "increase"
+        # Only allow 2025.0.x updates
+        versions:
+          - "2025.0.x"
+      - dependency-type: "all"
+        dependency-name: "io.github.rabobank:*"
+        versioning-strategy: "increase"
+        # Only allow 1.7.x updates
+        versions:
+          - "1.7.x"
