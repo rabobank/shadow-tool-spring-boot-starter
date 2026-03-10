@@ -1,5 +1,8 @@
 # Shadow Tool Spring Boot Starter
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter.svg?label=Maven%20Central&filter=0.2.*)](https://search.maven.org/artifact/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter)
+
 ## Introduction
 
 For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabobank/shadow-tool) for more information.
@@ -7,8 +10,6 @@ For use with Spring Boot applications. See [Shadow Tool](https://github.com/rabo
 ## Installation
 
 ### Maven
-
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.rabobank.shadow_tool/shadow-tool-spring-boot-starter)
 
 ```xml
 
@@ -25,9 +26,9 @@ The following properties can be configured in the `application.yml` file to conf
 
 | Property Name                                        | Type                                                         | Default Value | Description                                                                                                                                     |
 |------------------------------------------------------|--------------------------------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `shadowflow.encryption.cipher.secret`                | `String`                                                     | `null`          | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: `openssl rand -hex 32`                         |
-| `shadowflow.encryption.cipher.initialization-vector` | `String`                                                     | `null`          | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
-| `shadowflow.encryption.public-key`                   | `String`                                                     | `null`          | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
+| `shadowflow.encryption.cipher.secret`                | `String`                                                     | `null`        | The secret for encryption. Should be a 16, 24, or 32-byte string. Could be generated as follows: `openssl rand -hex 32`                         |
+| `shadowflow.encryption.cipher.initialization-vector` | `String`                                                     | `null`        | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
+| `shadowflow.encryption.public-key`                   | `String`                                                     | `null`        | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
 | `shadowflow.encryption.noop`                         | `Boolean`                                                    | `false`       | Disables encryption but encodes differences as `Base64`.                                                                                        |
 | `shadowflow.flows[*].percentage`                     | `Integer`                                                    | `0`           | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
 | `shadowflow.flows[*].type`                           | Fully qualified class name (i.e. `your.package.RecordClass`) | n/a           | The data model which is used to compare                                                                                                         |
