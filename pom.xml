@@ -13,6 +13,7 @@
     <version>0.3.3-SNAPSHOT</version>
     <name>Shadow Tool Spring Boot Starter</name>
     <description>Shadow Tool Spring Boot Starter</description>
+    <url>https://github.com/rabobank/shadow-tool-spring-boot-starter</url>
 
     <licenses>
         <license>
