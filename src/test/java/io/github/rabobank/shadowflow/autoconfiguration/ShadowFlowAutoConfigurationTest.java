@@ -8,15 +8,19 @@ import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
-import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Field;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -147,6 +151,34 @@ class ShadowFlowAutoConfigurationTest {
     }
 
     @Test
+    void shouldConfigureShadowFlowWithCustomExecutorBean() {
+        contextRunner
+                .withUserConfiguration(CustomExecutorConfiguration.class)
+                .withPropertyValues(
+                        "shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String",
+                        "shadowflow.executor-bean-name=customShadowFlowExecutor"
+                )
+                .run(context -> {
+                    assertThat(context).hasBean("test").hasBean("scopedTarget.test");
+                    final var flow = (ShadowFlow<?>) context.getBean("scopedTarget.test");
+                    final var configuredExecutor = context.getBean("customShadowFlowExecutor", Executor.class);
+                    assertThat(getExecutor(flow)).isSameAs(configuredExecutor);
+                });
+    }
+
+    @Test
+    void shouldFailWhenConfiguredExecutorBeanDoesNotExist() {
+        contextRunner
+                .withPropertyValues(
+                        "shadowflow.flows.test.percentage=50",
+                        "shadowflow.flows.test.type=java.lang.String",
+                        "shadowflow.executor-bean-name=missingExecutor"
+                )
+                .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
     void shouldConfigureShadowFlowsWithCipher() {
         contextRunner
                 .withPropertyValues(
@@ -202,5 +234,23 @@ class ShadowFlowAutoConfigurationTest {
 
         // Encode the public key in Base64
         return Base64.encodeBase64String(publicKey.getEncoded());
+    }
+
+    private static Executor getExecutor(final ShadowFlow<?> shadowFlow) {
+        try {
+            final Field executorField = ShadowFlow.class.getDeclaredField("executor");
+            executorField.setAccessible(true);
+            return (Executor) executorField.get(shadowFlow);
+        } catch (NoSuchFieldException | IllegalAccessException exception) {
+            throw new IllegalStateException("Unable to read configured executor from ShadowFlow", exception);
+        }
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    static class CustomExecutorConfiguration {
+        @Bean("customShadowFlowExecutor")
+        Executor customShadowFlowExecutor() {
+            return Runnable::run;
+        }
     }
 }

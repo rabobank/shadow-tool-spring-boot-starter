@@ -41,6 +41,12 @@
       "description": "Disables encryption but encodes differences as Base64."
     },
     {
+      "name": "shadowflow.executor-bean-name",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "Optional Spring bean name of an Executor to use for the shadow flow(s)."
+    },
+    {
       "name": "shadowflow.flows[*].percentage",
       "type": "java.lang.Integer",
       "defaultValue": 0,

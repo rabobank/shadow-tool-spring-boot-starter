@@ -34,6 +34,11 @@ public class ShadowFlowProperties {
     @NestedConfigurationProperty
     private EncryptionProperties encryption = new EncryptionProperties();
 
+    /**
+     * Optional Spring bean name of an {@link java.util.concurrent.Executor} to use for this flow.
+     */
+    private String executorBeanName;
+
     public Map<String, ShadowFlowConfig> getFlows() {
         return flows;
     }
@@ -48,6 +53,14 @@ public class ShadowFlowProperties {
 
     public void setEncryption(final EncryptionProperties encryption) {
         this.encryption = encryption;
+    }
+
+    public String getExecutorBeanName() {
+        return executorBeanName;
+    }
+
+    public void setExecutorBeanName(final String executorBeanName) {
+        this.executorBeanName = executorBeanName;
     }
 
     static ShadowFlowProperties bindProperties(final Environment environment) {

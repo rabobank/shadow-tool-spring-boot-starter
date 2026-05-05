@@ -30,12 +30,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.util.StringUtils;
 
 import java.security.Security;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import static org.springframework.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
@@ -101,7 +103,6 @@ public class ShadowFlowAutoConfiguration {
             registeredFlows.clear();
             registeredFlows.addAll(flows.keySet());
         }
-
 
         @Override
         public void postProcessBeanFactory(@NonNull final ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -195,6 +196,13 @@ public class ShadowFlowAutoConfiguration {
         private ShadowFlow<Object> createShadowFlow(final String name, final ShadowFlowConfig config) {
             final var builder = new ShadowFlowBuilder<>(config.getPercentage())
                     .withInstanceName(name);
+
+            final var executorBeanName = applicationContext.getEnvironment().getProperty("shadowflow.executor-bean-name", String.class);
+            if (StringUtils.hasText(executorBeanName)) {
+                final var executor = applicationContext.getBean(executorBeanName, Executor.class);
+                builder.withExecutor(executor);
+            }
+
             encryptionService.ifAvailable(builder::withEncryptionService);
             return builder.build();
         }
