@@ -30,6 +30,7 @@ The following properties can be configured in the `application.yml` file to conf
 | `shadowflow.encryption.cipher.initialization-vector` | `String`                                                     | `null`        | The initialization vector for encryption. Should be a 12-byte string. Could be generated as follows: `openssl rand -hex 12`                     |
 | `shadowflow.encryption.public-key`                   | `String`                                                     | `null`        | Base 64 encoded version of an `X509` Public Key. Used in a Cipher with algorithm `RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING`.                       |
 | `shadowflow.encryption.noop`                         | `Boolean`                                                    | `false`       | Disables encryption but encodes differences as `Base64`.                                                                                        |
+| `shadowflow.executor-bean-name`                      | `String`                                                     | `null`        | Optional Spring bean name of an `Executor` to use for the shadow flow(s).                                                                       |
 | `shadowflow.flows[*].percentage`                     | `Integer`                                                    | `0`           | Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow. |
 | `shadowflow.flows[*].type`                           | Fully qualified class name (i.e. `your.package.RecordClass`) | n/a           | The data model which is used to compare                                                                                                         |
 
@@ -44,6 +45,7 @@ file. Here are the steps to configure shadow flows:
    shadow flow.
    Zero effectively disables the shadow flow.
    And `type` represents the data model which is used to compare.
+   Optionally, `executor-bean-name` can point to a custom `Executor` bean.
 
 ```yaml
 shadowflow:
@@ -51,6 +53,7 @@ shadowflow:
     flow1:
       percentage: 50
       type: "your.package.DataClass" # This should be a fully qualified class name
+      executor-bean-name: "customShadowFlowExecutor"
     flow2:
       percentage: 75
       type: "your.package.RecordClass"
@@ -120,8 +123,10 @@ shadowflow:
     noop: false
 ```
 
-If you have done all this, a bean of type `ShadowFlow<T>` (T is the class name you defined in the `type` property) will be exposed 
-for each shadow flow you defined. In this example, `ShadowFlow<DataClass>` and `ShadowFlow<RecordClass>` will be exposed.
+If you have done all this, a bean of type `ShadowFlow<T>` (T is the class name you defined in the `type` property) will
+be exposed
+for each shadow flow you defined. In this example, `ShadowFlow<DataClass>` and `ShadowFlow<RecordClass>` will be
+exposed.
 
 ## Example Code
 
@@ -161,7 +166,8 @@ import reactor.core.publisher.Mono
 class MyService(private val shadowFlow: ShadowFlow<DataClass>) {
 
     // will always return the first passed argument, so a mono of RecordClass("value")
-    fun myMonoInvocation() = shadowFlow.compare(Mono.just(RecordClass("value")), Mono.just(RecordClass("differentValue")))
+    fun myMonoInvocation() =
+        shadowFlow.compare(Mono.just(RecordClass("value")), Mono.just(RecordClass("differentValue")))
 
     // will always return the first passed argument, so RecordClass("value")
     fun myInvocation() = shadowFlow.compare({ RecordClass("value") }, { RecordClass("differentValue") })
