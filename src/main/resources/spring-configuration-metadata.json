@@ -51,6 +51,11 @@
       "type": "java.lang.Integer",
       "defaultValue": 0,
       "description": "Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow."
+    },
+    {
+      "name": "shadowflow.flows[*].type",
+      "type": "java.lang.Class<?>",
+      "description": "The data model type used to compare flow responses; configure this value as the fully qualified class name."
     }
   ],
   "hints": [
@@ -65,6 +70,14 @@
     {
       "name": "shadowflow.flows[*].percentage",
       "description": "Percentage of how many calls should be compared in the shadow flow. Should be in the range of 0-100. Zero effectively disables the shadow flow."
+    },
+    {
+      "name": "shadowflow.flows[*].type",
+      "providers": [
+        {
+          "name": "class-reference"
+        }
+      ]
     }
   ]
 }
