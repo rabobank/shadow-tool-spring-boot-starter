@@ -77,7 +77,7 @@ public class ShadowFlowAutoConfiguration {
             return Binder.get(context.getEnvironment())
                     .bind(PROPERTY_SHADOW_FLOWS, Bindable.mapOf(String.class, ShadowFlowConfig.class))
                     .map(flows -> !flows.isEmpty())
-                    .orElse(false);
+                    .isBound();
         }
     }
 
