@@ -221,6 +221,9 @@
                                 <goals>
                                     <goal>makeAggregateBom</goal>
                                 </goals>
+                                <configuration>
+                                    <outputName>shadow-tool-spring-boot-starter-bom</outputName>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
