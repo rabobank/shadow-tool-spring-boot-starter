@@ -34,6 +34,7 @@
         <java.version>17</java.version>
 
         <assertj.version>3.27.7</assertj.version>
+        <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
@@ -157,24 +158,12 @@
         <profile>
             <id>maven-central</id>
             <activation>
+                <!-- Maven Central without fat jar is the current default behavior for release -->
+                <!-- If any release flows go out of this behavior, profiles need to be explicitly activated -->
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
-                <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-            </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.sonatype.central</groupId>
-                        <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>${central-publishing-maven-plugin.version}</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <publishingServerId>central</publishingServerId>
-                            <autoPublish>true</autoPublish>
-                        </configuration>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -189,6 +178,16 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -199,18 +198,20 @@
                     <id>${distributionManagementRepositoryId}</id>
                     <url>${distributionManagementRepositoryUrl}</url>
                 </repository>
+                <snapshotRepository>
+                    <id>${distributionManagementSnapshotRepositoryId}</id>
+                    <url>${distributionManagementSnapshotRepositoryUrl}</url>
+                </snapshotRepository>
             </distributionManagement>
         </profile>
         <profile>
             <id>fat-jar</id>
-            <properties>
-                <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.cyclonedx</groupId>
                         <artifactId>cyclonedx-maven-plugin</artifactId>
+                        <version>${cyclonedx-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>generate-resources</phase>
@@ -218,7 +219,8 @@
                                     <goal>makeAggregateBom</goal>
                                 </goals>
                                 <configuration>
-                                    <outputName>shadow-tool-spring-boot-starter-bom</outputName>
+                                    <outputName>${project.artifactId}-bom</outputName>
+                                    <outputDirectory>${project.build.directory}/classes/META-INF</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -236,6 +238,17 @@
                                 <configuration>
                                     <shadedArtifactAttached>true</shadedArtifactAttached>
                                     <shadedClassifierName>all</shadedClassifierName>
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                                    <filters>
+                                        <filter>
+                                            <artifact>*:*</artifact>
+                                            <excludes>
+                                                <exclude>META-INF/*.SF</exclude>
+                                                <exclude>META-INF/*.DSA</exclude>
+                                                <exclude>META-INF/*.RSA</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
                                 </configuration>
                             </execution>
                         </executions>
